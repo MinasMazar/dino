@@ -8,12 +8,8 @@
   #include <avr/dtostrf.h>
 #endif
 
-DinoLCD dinoLCD;
-DHT dht;
-
 // SoftwareSerial doesn't work on the Due yet.
 #if !defined(__SAM3X8E__)
-  DinoSerial dinoSerial;
 #endif
 
 Dino::Dino(){
@@ -247,15 +243,13 @@ void Dino::removeListener() {
 void Dino::servoToggle() {
   if (val == 0) {
     #ifdef debug
-      Serial.print("Detaching servo"); Serial.print(" on pin "); Serial.println(pin);
+      Serial.print("Detaching servo [STUB MODE]"); Serial.print(" on pin "); Serial.println(pin);
     #endif
-    servos[pin - SERVO_OFFSET].detach();
   }
   else {
     #ifdef debug
-      Serial.print("Attaching servo"); Serial.print(" on pin "); Serial.println(pin);
+    Serial.print("Attaching servo [STUB MODE]"); Serial.print(" on pin "); Serial.println(pin);
     #endif
-    servos[pin - SERVO_OFFSET].attach(pin);
   }
 }
 
@@ -263,18 +257,16 @@ void Dino::servoToggle() {
 // Write a value to the servo object.
 void Dino::servoWrite() {
   #ifdef debug
-    Serial.print("Servo write "); Serial.print(val); Serial.print(" to pin "); Serial.println(pin);
+  Serial.print("Servo write  [STUB MODE]"); Serial.print(val); Serial.print(" to pin "); Serial.println(pin);
   #endif
-  servos[pin - SERVO_OFFSET].write(val);
 }
 
 // CMD = 10
 // Write a value to the servo object.
 void Dino::handleLCD() {
   #ifdef debug
-    Serial.print("DinoLCD command: "); Serial.print(val); Serial.print(" with data: "); Serial.println(auxMsg);
+  Serial.print("DinoLCD command: [STUB MODE]"); Serial.print(val); Serial.print(" with data: "); Serial.println(auxMsg);
   #endif
-  dinoLCD.process(val, auxMsg);
 }
 
 // CMD = 11
@@ -294,10 +286,6 @@ void Dino::handleSerial() {
   #ifdef debug
     Serial.print("DinoSerial command: "); Serial.print(val); Serial.print(" with data: "); Serial.println(auxMsg);
   #endif
-  // SoftwareSerial doesn't work on the Due yet.
-  #if !defined(__SAM3X8E__)
-  dinoSerial.process(val, auxMsg);
-  #endif
 }
 
 
@@ -305,74 +293,11 @@ void Dino::handleSerial() {
 // Read a DHT sensor
 void Dino::handleDHT() {
   #ifdef debug
-    Serial.print("DinoDHT command: "); Serial.print(val); Serial.print(" with data: "); Serial.println(auxMsg);
-  #endif
-  // dtostrf doesn't work on the Due yet.
-  #if !defined(__SAM3X8E__)
-  if (pin != dht.pin) dht.setup(pin);
-  float reading;
-  char readingBuff[10];
-  char prefix;
-  if (val == 0) {
-    reading = dht.getTemperature();
-    prefix = 'T';
-  } else {
-    reading = dht.getHumidity();
-    prefix = 'H';
-  }
-  if (! isnan(reading)) {
-    dtostrf(reading, 6, 4, readingBuff);
-    sprintf(response, "%d:%c%s", pin, prefix, readingBuff);
-  }
+  Serial.print("DinoDHT command: [STUB MODE]"); Serial.print(val); Serial.print(" with data: "); Serial.println(auxMsg);
   #endif
 }
 
 void Dino::ds18Read() {
-  OneWire ds(pin);
-
-  byte data[12];
-  byte addr[8];
-
-  if ( !ds.search(addr)) {
-    ds.reset_search();
-    return;
-   }
-
-  if ( OneWire::crc8( addr, 7) != addr[7]) {
-    // Serial.println("CRC is not valid!");
-    return;
-  }
-
-  if ( addr[0] != 0x10 && addr[0] != 0x28) {
-    // Serial.print("Device is not recognized");
-    return;
-  }
-
-  ds.reset();
-  ds.select(addr);
-  ds.write(0x44,1); // start conversion, with parasite power on at the end
-
-  byte present = ds.reset();
-  ds.select(addr);
-  ds.write(0xBE); // Read Scratchpad
-
-  for (int i = 0; i < 9; i++) { // we need 9 bytes
-    data[i] = ds.read();
-  }
-
-  ds.reset_search();
-
-  byte MSB = data[1];
-  byte LSB = data[0];
-
-  float tempRead = ((MSB << 8) | LSB); //using two's compliment
-  float reading = tempRead / 16;
-  char readingBuff[10];
-
-  if (! isnan(reading)) {
-    dtostrf(reading, 6, 4, readingBuff);
-    sprintf(response, "%d:%s", pin, readingBuff);
-  }
 }
 
 

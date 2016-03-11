@@ -6,27 +6,19 @@
 #define Dino_h
 
 #include "Arduino.h"
-#include <Servo.h>
-#include "DinoLCD.h"
-#include "DHT.h"
-#include "OneWire.h"
 
 // SoftwareSerial doesn't work on the Due yet.
 #if !defined(__SAM3X8E__)
-  #include "DinoSerial.h"
 #endif
 
 
 // Allocate listener storage based on what board we're running.
 #if defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__)
 #  define PIN_COUNT 70
-#  define SERVO_OFFSET 22
 #elif defined(__SAM3X8E__)
 #  define PIN_COUNT 66
-#  define SERVO_OFFSET 22
 #else
 #  define PIN_COUNT 22
-#  define SERVO_OFFSET 2
 #endif
 
 // Uncomment this line to enable debugging mode.
@@ -82,9 +74,6 @@ class Dino {
     // Use a write callback from the main sketch to respond.
     void (*_writeCallback)(char *str);
     void writeResponse();
-
-    // Arduino native library variables.
-    Servo servos[12];
 
     // Internal timing variables and utility functions.
     long heartRate;
